@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>나무마크 테스트</title>
+    <link rel="stylesheet" href="namumark.css" />
+    <script>
+      (function () {
+        {
+          if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme:dark)").matches
+          ) {
+            {
+              document.documentElement.classList.add("dark");
+            }
+          }
+          window
+            .matchMedia("(prefers-color-scheme:dark)")
+            .addEventListener("change", function (e) {
+              {
+                document.documentElement.classList.toggle("dark", e.matches);
+              }
+            });
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <textarea
+        id="input"
+        placeholder="나무마크 문법 입력"
+        rows="10"
+      ></textarea>
+      <p id="status"></p>
+      <article id="content" class="wiki-content"></article>
+    </div>
+    <script type="module">
+      import { initWasm, render } from "./wasm.js";
+
+      const input = document.getElementById("input");
+      const output = document.getElementById("content");
+      const status = document.getElementById("status");
+
+      let debounceTimer;
+
+      async function update() {
+        const text = input.value;
+        if (!text) {
+          output.innerHTML = "";
+          status.textContent = "";
+          return;
+        }
+
+        try {
+          const start = performance.now();
+          const html = render(text);
+          const elapsed = performance.now() - start;
+          output.innerHTML = html;
+          status.textContent = `${elapsed.toFixed(2)}ms`;
+        } catch (e) {
+          status.textContent = "Error: " + e.message;
+        }
+      }
+
+      input.addEventListener("input", () => {
+        //clearTimeout(debounceTimer);
+        //debounceTimer = setTimeout(update, 300);
+        update();
+      });
+
+      await initWasm();
+      status.textContent = "WASM loaded";
+    </script>
+  </body>
+</html>
